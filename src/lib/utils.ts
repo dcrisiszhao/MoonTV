@@ -45,7 +45,7 @@ export function processImageUrl(originalUrl: string): string {
     return `${proxyUrl}${encodeURIComponent(originalUrl)}`;
   } else {
     // 镜像模式：替换域名
-    return originalUrl.replace(/^https?:\/\/[^\/]+/, proxyUrl);
+    return originalUrl.replace(new RegExp('^https?://[^/]+'), proxyUrl);
   }
 }
 
@@ -89,7 +89,7 @@ export function processDoubanUrl(originalUrl: string): string {
   } else if (proxyUrl.endsWith('/')) {
     return `${proxyUrl}${encodeURIComponent(originalUrl)}`;
   } else {
-    return originalUrl.replace(/^https?:\/\/[^\/]+/, proxyUrl);
+    return originalUrl.replace(new RegExp('^https?://[^/]+'), proxyUrl);
   }
 }
 
