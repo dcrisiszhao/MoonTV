@@ -37,7 +37,22 @@ async function fetchWithTimeout(
 
   // 检查是否使用代理
   const proxyUrl = getDoubanProxyUrl();
-  const finalUrl = proxyUrl ? `${proxyUrl}${encodeURIComponent(url)}` : url;
+  let finalUrl = url;
+
+  if (proxyUrl) {
+    if (proxyUrl.includes('?') || proxyUrl.includes('=') || proxyUrl.endsWith('=')) {
+      // 模式 A: 隧道代理 (带参数)
+      finalUrl = `${proxyUrl}${encodeURIComponent(url)}`;
+    } else if (proxyUrl.endsWith('/')) {
+      // 模式 B: 隧道代理 (RESTful 风格，以 / 结尾)
+      // Example: https://my-worker.com/
+      finalUrl = `${proxyUrl}${encodeURIComponent(url)}`;
+    } else {
+      // 模式 C: 镜像站 (域名替换)
+      // Example: https://douban.mirror.com
+      finalUrl = url.replace(/^https?:\/\/(?:m|movie)\.douban\.com/, proxyUrl);
+    }
+  }
 
   const fetchOptions: RequestInit = {
     ...options,

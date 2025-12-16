@@ -37,7 +37,16 @@ export function processImageUrl(originalUrl: string): string {
   const proxyUrl = getImageProxyUrl();
   if (!proxyUrl) return originalUrl;
 
-  return `${proxyUrl}${encodeURIComponent(originalUrl)}`;
+  if (proxyUrl.includes('?') || proxyUrl.includes('=') || proxyUrl.endsWith('=')) {
+    // 隧道模式 (带参数)
+    return `${proxyUrl}${encodeURIComponent(originalUrl)}`;
+  } else if (proxyUrl.endsWith('/')) {
+    // 隧道模式 (以 / 结尾)
+    return `${proxyUrl}${encodeURIComponent(originalUrl)}`;
+  } else {
+    // 镜像模式：替换域名
+    return originalUrl.replace(/^https?:\/\/[^\/]+/, proxyUrl);
+  }
 }
 
 /**
@@ -75,7 +84,13 @@ export function processDoubanUrl(originalUrl: string): string {
   const proxyUrl = getDoubanProxyUrl();
   if (!proxyUrl) return originalUrl;
 
-  return `${proxyUrl}${encodeURIComponent(originalUrl)}`;
+  if (proxyUrl.includes('?') || proxyUrl.includes('=') || proxyUrl.endsWith('=')) {
+    return `${proxyUrl}${encodeURIComponent(originalUrl)}`;
+  } else if (proxyUrl.endsWith('/')) {
+    return `${proxyUrl}${encodeURIComponent(originalUrl)}`;
+  } else {
+    return originalUrl.replace(/^https?:\/\/[^\/]+/, proxyUrl);
+  }
 }
 
 export function cleanHtmlTags(text: string): string {
@@ -159,14 +174,14 @@ export async function getVideoResolutionFromM3u8(m3u8Url: string): Promise<{
               width >= 3840
                 ? '4K' // 4K: 3840x2160
                 : width >= 2560
-                ? '2K' // 2K: 2560x1440
-                : width >= 1920
-                ? '1080p' // 1080p: 1920x1080
-                : width >= 1280
-                ? '720p' // 720p: 1280x720
-                : width >= 854
-                ? '480p'
-                : 'SD'; // 480p: 854x480
+                  ? '2K' // 2K: 2560x1440
+                  : width >= 1920
+                    ? '1080p' // 1080p: 1920x1080
+                    : width >= 1280
+                      ? '720p' // 720p: 1280x720
+                      : width >= 854
+                        ? '480p'
+                        : 'SD'; // 480p: 854x480
 
             resolve({
               quality,
@@ -239,8 +254,7 @@ export async function getVideoResolutionFromM3u8(m3u8Url: string): Promise<{
     });
   } catch (error) {
     throw new Error(
-      `Error getting video resolution: ${
-        error instanceof Error ? error.message : String(error)
+      `Error getting video resolution: ${error instanceof Error ? error.message : String(error)
       }`
     );
   }
