@@ -32,6 +32,12 @@ async function handleRequest(request) {
       (name) => !name.startsWith('cf-')
     );
 
+    // 补丁：浏览器端 fetch 无法修改 Referer，必须由代理强制覆写
+    // 否则豆瓣图片和 API 会返回 403 Forbidden
+    if (actualUrlStr.includes('douban.com') || actualUrlStr.includes('doubanio.com')) {
+      newHeaders.set('Referer', 'https://movie.douban.com/');
+    }
+
     // 创建一个新的请求以访问目标 URL
     const modifiedRequest = new Request(actualUrlStr, {
       headers: newHeaders,
