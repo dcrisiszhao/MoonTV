@@ -54,10 +54,10 @@ async function fetchWithTimeout(
       // 策略：将原 API 的 host (m.douban.com 或 movie.douban.com) 替换为代理 URL 的 host
       // 如果 proxyUrl 包含协议（如 https://xxx），则整体替换协议+域名
       if (proxyUrl.startsWith('http')) {
-        finalUrl = url.replace(/^https?:\/\/[^\/]+/, proxyUrl);
+        finalUrl = url.replace(/^https?:\/\/[^/]+/, proxyUrl);
       } else {
         // 如果用户只填了域名（不推荐，但为了兼容），则只替换域名部分
-        finalUrl = url.replace(/[^\/]+\.douban\.com/, proxyUrl);
+        finalUrl = url.replace(/[^/]+\.douban\.com/, proxyUrl);
       }
     }
   }
