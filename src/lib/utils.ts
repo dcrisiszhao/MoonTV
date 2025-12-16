@@ -45,7 +45,13 @@ export function processImageUrl(originalUrl: string): string {
     return `${proxyUrl}${encodeURIComponent(originalUrl)}`;
   } else {
     // 镜像模式：替换域名
-    return originalUrl.replace(new RegExp('^https?://[^/]+'), proxyUrl);
+    // 兼容通用镜像和特定子域名镜像（如 cmliussss）
+    // 如果是豆瓣图片域名 (imgX.doubanio.com)，尝试替换为代理域名
+    if (originalUrl.includes('doubanio.com')) {
+      return originalUrl.replace(/https?:\/\/[^\/]+\.doubanio\.com/, proxyUrl);
+    }
+    // 默认行为：替换协议+主机名
+    return originalUrl.replace(/^https?:\/\/[^\/]+/, proxyUrl);
   }
 }
 
@@ -89,7 +95,7 @@ export function processDoubanUrl(originalUrl: string): string {
   } else if (proxyUrl.endsWith('/')) {
     return `${proxyUrl}${encodeURIComponent(originalUrl)}`;
   } else {
-    return originalUrl.replace(new RegExp('^https?://[^/]+'), proxyUrl);
+    return originalUrl.replace(/^https?:\/\/[^\/]+/, proxyUrl);
   }
 }
 

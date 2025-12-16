@@ -33,7 +33,7 @@ async function fetchWithTimeout(
   options: RequestInit = {}
 ): Promise<Response> {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 10000); // 10秒超时
+  const timeoutId = setTimeout(() => controller.abort(), 9000); // 9秒超时（适应 Vercel 10s 限制）
 
   // 检查是否使用代理
   const proxyUrl = getDoubanProxyUrl();
@@ -49,8 +49,16 @@ async function fetchWithTimeout(
       finalUrl = `${proxyUrl}${encodeURIComponent(url)}`;
     } else {
       // 模式 C: 镜像站 (域名替换)
-      // Example: https://douban.mirror.com
-      finalUrl = url.replace(/^https?:\/\/(?:m|movie)\.douban\.com/, proxyUrl);
+      // Example 1: https://m.douban.cmliussss.net (特定镜像)
+      // Example 2: https://douban.mirror.com (通用反代)
+      // 策略：将原 API 的 host (m.douban.com 或 movie.douban.com) 替换为代理 URL 的 host
+      // 如果 proxyUrl 包含协议（如 https://xxx），则整体替换协议+域名
+      if (proxyUrl.startsWith('http')) {
+        finalUrl = url.replace(/^https?:\/\/[^\/]+/, proxyUrl);
+      } else {
+        // 如果用户只填了域名（不推荐，但为了兼容），则只替换域名部分
+        finalUrl = url.replace(/[^\/]+\.douban\.com/, proxyUrl);
+      }
     }
   }
 
