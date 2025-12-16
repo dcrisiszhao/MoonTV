@@ -48,10 +48,18 @@ export function processImageUrl(originalUrl: string): string {
     // 兼容通用镜像和特定子域名镜像（如 cmliussss）
     // 如果是豆瓣图片域名 (imgX.doubanio.com)，尝试替换为代理域名
     if (originalUrl.includes('doubanio.com')) {
-      return originalUrl.replace(/https?:\/\/[^/]+\.doubanio\.com/, proxyUrl);
+      // 如果配置的 proxyUrl 带有协议 (http/https)，则替换整个协议+域名
+      if (proxyUrl.startsWith('http')) {
+        return originalUrl.replace(/https?:\/\/[^/]+\.doubanio\.com/, proxyUrl);
+      }
+      // 如果配置的只是域名，则只替换域名部分，保留原协议
+      return originalUrl.replace(/[^/]+\.doubanio\.com/, proxyUrl);
     }
-    // 默认行为：替换协议+主机名
-    return originalUrl.replace(/^https?:\/\/[^/]+/, proxyUrl);
+    // 默认行为：
+    if (proxyUrl.startsWith('http')) {
+      return originalUrl.replace(/^https?:\/\/[^/]+/, proxyUrl);
+    }
+    return originalUrl.replace(/[^/]+/, proxyUrl);
   }
 }
 
